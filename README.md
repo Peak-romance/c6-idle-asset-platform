@@ -4,6 +4,12 @@
 
 技术栈（固定）：**FastAPI + SQLite** ／ **原生 HTML + Tailwind（CDN，无构建）** ／ 图片本地文件存储 ／ **docker compose 一键拉起** ／ JWT 登录。
 
+> **C6 Web Application 挑战交付物**
+> - 在线应用（app 链接）：https://idle-asset-platform.app.workbuddy.host/?sharecode=SLUWH4EXLI
+> - 仓库（repo 链接）：https://github.com/Peak-romance/c6-idle-asset-platform
+> - 端到端冒烟测试：**91 / 91 项断言通过**
+> - 单端口部署：新增 `serve.py`（对外仅暴露一个 `$PORT` 端口，内部拉起后端并反代 `/api`、`/uploads`），便于云托管 / 发布。
+
 ---
 
 ## 一、一键启动命令与访问地址
@@ -55,6 +61,16 @@ docker compose down
 
 > 环境变量见 `.env.example`（方式 A 用）：`DATABASE_PATH` 数据库路径、`UPLOAD_DIR` 上传目录、`SECRET_KEY` 会话密钥。  
 > 相对路径按**仓库根目录**解析；不配置则用 `config.py` 默认值（`database/data/` 下），开箱即用。
+
+### 方式 C：单端口 serve.py（适合发布 / 云托管）
+
+对外只暴露**一个 HTTP 端口**（读取 `PORT` 环境变量，默认 3000，绑定 `0.0.0.0`）：内部在回环 `8000` 拉起 FastAPI 后端，并在同一端口托管前端静态页、把 `/api` 与 `/uploads` 反向代理到后端。无 Docker、无多进程管理，单条命令即可上线。
+
+```bash
+pip install -r backend/requirements.txt
+python serve.py                 # 默认 http://0.0.0.0:3000
+PORT=8080 python serve.py      # 自定义端口
+```
 
 ### 手动分步启动（排障时用，等价于一键脚本）
 
